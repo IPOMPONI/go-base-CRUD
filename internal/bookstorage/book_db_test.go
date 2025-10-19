@@ -153,3 +153,23 @@ func TestUpdateBookById(t *testing.T) {
 		t.Fatalf("Error update book! %v", err)
 	}
 }
+
+func TestDeleteBookById(t *testing.T) {
+	db, _ := NewConnectDb()
+	defer db.Close(context.Background())
+
+	err := DeleteBookById(db, 1)
+	if err != nil {
+		t.Fatalf("Error delete book! %v", err)
+	}
+}
+
+func TestDeleteAllBooks(t *testing.T) {
+	db, _ := NewConnectDb()
+	defer db.Close(context.Background())
+
+	err := DeleteAllBooks(db)
+	if err != nil {
+		t.Fatalf("Error delete all books! %v", err)
+	}
+}
