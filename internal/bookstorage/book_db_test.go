@@ -136,3 +136,20 @@ func TestGetAllBooks(t *testing.T) {
 		t.Fatalf("Error getted all books! %v", err)
 	}
 }
+
+func TestUpdateBookById(t *testing.T) {
+	db, _ := NewConnectDb()
+	defer db.Close(context.Background())
+
+	book := Book{
+		Id:            1,
+		Title:         "Новое название",
+		Author:        "Новый автор",
+		YearPublished: 2024,
+	}
+
+	err := UpdateBookById(db, book)
+	if err != nil {
+		t.Fatalf("Error update book! %v", err)
+	}
+}
