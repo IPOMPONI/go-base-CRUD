@@ -14,6 +14,26 @@ func InsertBook(conn *pgx.Conn, book Book) error {
 	return err
 }
 
+func GetBookById(conn *pgx.Conn, id int) (*Book, error) {
+	query := `SELECT id, title, author, year_published, added_at FROM Book WHERE id = $1`
+
+	var book Book
+
+	err := conn.QueryRow(context.Background(), query, id).Scan(
+		&book.Id,
+		&book.Title,
+		&book.Author,
+		&book.YearPublished,
+		&book.AddedAt,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &book, nil
+}
+
 func GetAllBooksData(conn *pgx.Conn) ([]Book, error) {
 	query := `SELECT id, title, author, year_published, added_at FROM Book ORDER BY id`
 
