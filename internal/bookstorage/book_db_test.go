@@ -118,3 +118,21 @@ func TestGetBookByIncorrectId(t *testing.T) {
 		t.Error("Expected error for incorrect id.")
 	}
 }
+
+func TestGetAllBooks(t *testing.T) {
+	db, _ := NewConnectDb()
+
+	defer db.Close(context.Background())
+
+	var books []Book
+
+	books, err := GetAllBooks(db)
+
+	if len(books) == 0 {
+		t.Fatal("Getted data is empty")
+	}
+
+	if err != nil {
+		t.Fatalf("Error getted all books! %v", err)
+	}
+}
