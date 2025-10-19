@@ -34,7 +34,7 @@ func GetBookById(conn *pgx.Conn, id int) (*Book, error) {
 	return &book, nil
 }
 
-func GetAllBooksData(conn *pgx.Conn) ([]Book, error) {
+func GetAllBooks(conn *pgx.Conn) ([]Book, error) {
 	query := `SELECT id, title, author, year_published, added_at FROM Book ORDER BY id`
 
 	rows, err := conn.Query(context.Background(), query)
