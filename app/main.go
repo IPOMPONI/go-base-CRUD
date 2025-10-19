@@ -2,44 +2,26 @@ package main
 
 import (
 	"context"
-	"fmt"
+	"log"
+	"net/http"
 
 	"github.com/IPOMPONI/go-base-CRUD/internal/bookstorage"
+	"github.com/IPOMPONI/go-base-CRUD/internal/server"
 )
 
 func main() {
 	db, err := bookstorage.NewConnectDb()
 
 	if err != nil {
-		println("Error connection: ", err)
-		panic(err)
+		log.Fatal("Database connection failed:", err)
 	}
 
-	println("Connect!")
-
-	err = bookstorage.InsertBook(db, bookstorage.Book{
-		Title:         "Мастер и Маргарита",
-		Author:        "Михаил Булгаков",
-		YearPublished: 1966,
-	})
-
-	if err != nil {
-		println("Error insert book_1")
-	}
-
-	err = bookstorage.InsertBook(db, bookstorage.Book{
-		Title:         "Преступление и наказание",
-		Author:        "Федор Достоевский",
-		YearPublished: 1866,
-	})
-
-	if err != nil {
-		println("Error insert book_2")
-	}
-
-	books, err := bookstorage.GetAllBooksData(db)
-
-	fmt.Println(books)
+	log.Println("Database connected!")
 
 	defer db.Close(context.Background())
+
+	handler := server.NewHandler(db)
+
+	log.Println("Server starting on :8080")
+	log.Fatal(http.ListenAndServe(":8080", handler))
 }
