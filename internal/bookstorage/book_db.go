@@ -7,7 +7,7 @@ import (
 )
 
 func InsertBook(conn *pgx.Conn, book Book) error {
-	query := `INSERT INTO Book  (title, author, year_published) VALUES ($1, $2, $3)`
+	query := `INSERT INTO Books (title, author, year_published) VALUES ($1, $2, $3)`
 
 	_, err := conn.Exec(context.Background(), query, book.Title, book.Author, book.YearPublished)
 
@@ -15,7 +15,7 @@ func InsertBook(conn *pgx.Conn, book Book) error {
 }
 
 func GetBookById(conn *pgx.Conn, id int) (*Book, error) {
-	query := `SELECT id, title, author, year_published, added_at FROM Book WHERE id = $1`
+	query := `SELECT id, title, author, year_published, added_at FROM Books WHERE id = $1`
 
 	var book Book
 
@@ -35,7 +35,7 @@ func GetBookById(conn *pgx.Conn, id int) (*Book, error) {
 }
 
 func GetAllBooks(conn *pgx.Conn) ([]Book, error) {
-	query := `SELECT id, title, author, year_published, added_at FROM Book ORDER BY id`
+	query := `SELECT id, title, author, year_published, added_at FROM Books ORDER BY id`
 
 	rows, err := conn.Query(context.Background(), query)
 
