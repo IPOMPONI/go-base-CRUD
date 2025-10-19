@@ -68,6 +68,14 @@ func GetAllBooks(conn *pgx.Conn) ([]Book, error) {
 	return bookAllData, rows.Err()
 }
 
+func UpdateBookById(conn *pgx.Conn, book Book) error {
+	query := `UPDATE Books SET title = $1, author = $2, year_published = $3 WHERE id = $4`
+
+	_, err := conn.Exec(context.Background(), query, book.Title, book.Author, book.YearPublished, book.Id)
+
+	return err
+}
+
 func DeleteBookById(conn *pgx.Conn, id int) error {
 	query := `DELETE FROM Books WHERE id = $1`
 
