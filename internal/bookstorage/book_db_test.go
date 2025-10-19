@@ -8,6 +8,12 @@ import (
 func TestInsertBook(t *testing.T) {
 	db, _ := NewConnectDb()
 
+	_, err := db.Exec(context.Background(), "TRUNCATE TABLE books RESTART IDENTITY")
+
+	if err != nil {
+		t.Fatalf("Error truncate table!")
+	}
+
 	defer db.Close(context.Background())
 
 	book := Book{
@@ -16,7 +22,7 @@ func TestInsertBook(t *testing.T) {
 		YearPublished: 2025,
 	}
 
-	err := InsertBook(db, book)
+	err = InsertBook(db, book)
 
 	if err != nil {
 		t.Fatalf("Error insert book! %v", err)
@@ -55,7 +61,7 @@ func TestInsertBookZeroYear(t *testing.T) {
 	err := InsertBook(db, book)
 
 	if err == nil {
-		t.Error("Expected error for zero year")
+		t.Error("Expected error for zero year.")
 	}
 }
 
@@ -73,6 +79,6 @@ func TestInsertBookFutureYear(t *testing.T) {
 	err := InsertBook(db, book)
 
 	if err == nil {
-		t.Error("Expected error for future year")
+		t.Error("Expected error for future year.")
 	}
 }
