@@ -82,3 +82,39 @@ func TestInsertBookFutureYear(t *testing.T) {
 		t.Error("Expected error for future year.")
 	}
 }
+
+func TestGetBookById(t *testing.T) {
+	db, _ := NewConnectDb()
+
+	defer db.Close(context.Background())
+
+	var book *Book
+
+	book, err := GetBookById(db, 1)
+
+	if book == nil {
+		t.Fatalf("Geted book is nil!")
+	}
+
+	if err != nil {
+		t.Fatalf("Error get book by id! %v", err)
+	}
+}
+
+func TestGetBookByIncorrectId(t *testing.T) {
+	db, _ := NewConnectDb()
+
+	defer db.Close(context.Background())
+
+	var book *Book
+
+	book, err := GetBookById(db, 2)
+
+	if book != nil {
+		t.Error("Expected to be nil for incorrect id.")
+	}
+
+	if err == nil {
+		t.Error("Expected error for incorrect id.")
+	}
+}
