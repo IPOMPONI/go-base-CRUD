@@ -67,3 +67,11 @@ func GetAllBooks(conn *pgx.Conn) ([]Book, error) {
 
 	return bookAllData, rows.Err()
 }
+
+func DeleteAllBooks(conn *pgx.Conn) error {
+	query := `DELETE FROM Books`
+
+	_, err := conn.Exec(context.Background(), query)
+
+	return err
+}
