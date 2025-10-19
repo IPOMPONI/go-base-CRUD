@@ -17,6 +17,7 @@ func NewHandler(conn *pgx.Conn) http.Handler {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("POST /books", InsertBookHandler)
+	mux.HandleFunc("GET /books", GetAllBooksHandler)
 	return mux
 }
 
@@ -35,4 +36,16 @@ func InsertBookHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusCreated)
 	fmt.Fprintf(w, `{"message": "Book created"}`)
+}
+
+func GetAllBooksHandler(w http.ResponseWriter, r *http.Request) {
+	books, err := bookstorage.GetAllBooks(dbConn)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(books)
 }
