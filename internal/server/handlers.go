@@ -18,6 +18,7 @@ func NewHandler(conn *pgx.Conn) http.Handler {
 
 	mux.HandleFunc("POST /books", InsertBookHandler)
 	mux.HandleFunc("GET /books", GetAllBooksHandler)
+	mux.HandleFunc("DELETE /books", DeleteAllBooksHandler)
 	return mux
 }
 
@@ -48,4 +49,16 @@ func GetAllBooksHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(books)
+}
+
+func DeleteAllBooksHandler(w http.ResponseWriter, r *http.Request) {
+
+	err := bookstorage.DeleteAllBooks(dbConn)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	fmt.Fprintf(w, `{"message": "All books deleted"}`)
 }
