@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/IPOMPONI/go-base-CRUD/internal/bookstorage"
 	"github.com/jackc/pgx/v5"
@@ -18,6 +19,7 @@ func NewHandler(conn *pgx.Conn) http.Handler {
 
 	mux.HandleFunc("POST /books", InsertBookHandler)
 	mux.HandleFunc("GET /books", GetAllBooksHandler)
+	mux.HandleFunc("GET /books/{id}", GetBookByIdHandler)
 	mux.HandleFunc("DELETE /books", DeleteAllBooksHandler)
 	return mux
 }
@@ -49,6 +51,25 @@ func GetAllBooksHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(books)
+}
+
+func GetBookByIdHandler(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(r.PathValue("id"))
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	book, err := bookstorage.GetBookById(dbConn, id)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(book)
 }
 
 func DeleteAllBooksHandler(w http.ResponseWriter, r *http.Request) {
