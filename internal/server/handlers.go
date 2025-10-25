@@ -18,6 +18,7 @@ func NewHandler(conn *pgx.Conn) http.Handler {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("POST /books", InsertBookHandler)
+	mux.HandleFunc("PUT /books/{id}", UpdateBookByIdHandler)
 	mux.HandleFunc("GET /books", GetAllBooksHandler)
 	mux.HandleFunc("GET /books/{id}", GetBookByIdHandler)
 	mux.HandleFunc("DELETE /books", DeleteAllBooksHandler)
@@ -40,6 +41,34 @@ func InsertBookHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusCreated)
 	fmt.Fprintf(w, `{"message": "Book created"}`)
+}
+
+func UpdateBookByIdHandler(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(r.PathValue("id"))
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	var book bookstorage.Book
+
+	if err := json.NewDecoder(r.Body).Decode(&book); err != nil {
+		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		return
+	}
+
+	book.Id = id
+
+	err = bookstorage.UpdateBookById(dbConn, book)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprintf(w, `{"message": "Book with id = %d was updated"}`, id)
 }
 
 func GetAllBooksHandler(w http.ResponseWriter, r *http.Request) {
