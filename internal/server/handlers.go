@@ -21,6 +21,7 @@ func NewHandler(conn *pgx.Conn) http.Handler {
 	mux.HandleFunc("GET /books", GetAllBooksHandler)
 	mux.HandleFunc("GET /books/{id}", GetBookByIdHandler)
 	mux.HandleFunc("DELETE /books", DeleteAllBooksHandler)
+	mux.HandleFunc("DELETE /books/{id}", DeleteBookByIdHandler)
 	return mux
 }
 
@@ -82,4 +83,22 @@ func DeleteAllBooksHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Fprintf(w, `{"message": "All books deleted"}`)
+}
+
+func DeleteBookByIdHandler(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(r.PathValue("id"))
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err = bookstorage.DeleteBookById(dbConn, id)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
+	fmt.Fprintf(w, `{"message": "Book with id = %v was deleted"}`, id)
 }
