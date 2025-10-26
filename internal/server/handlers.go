@@ -10,23 +10,23 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-var dbConn *pgx.Conn
+type HandlerData struct {
+	DbConn *pgx.Conn
+}
 
-func NewHandler(conn *pgx.Conn) http.Handler {
-	dbConn = conn
-
+func (hD HandlerData) NewHandler() http.Handler {
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("POST /books", InsertBookHandler)
-	mux.HandleFunc("GET /books/{id}", GetBookByIdHandler)
-	mux.HandleFunc("GET /books", GetAllBooksHandler)
-	mux.HandleFunc("PUT /books/{id}", UpdateBookByIdHandler)
-	mux.HandleFunc("DELETE /books/{id}", DeleteBookByIdHandler)
-	mux.HandleFunc("DELETE /books", DeleteAllBooksHandler)
+	mux.HandleFunc("POST /books", hD.InsertBookHandler)
+	mux.HandleFunc("GET /books/{id}", hD.GetBookByIdHandler)
+	mux.HandleFunc("GET /books", hD.GetAllBooksHandler)
+	mux.HandleFunc("PUT /books/{id}", hD.UpdateBookByIdHandler)
+	mux.HandleFunc("DELETE /books/{id}", hD.DeleteBookByIdHandler)
+	mux.HandleFunc("DELETE /books", hD.DeleteAllBooksHandler)
 	return mux
 }
 
-func InsertBookHandler(w http.ResponseWriter, r *http.Request) {
+func (hD HandlerData) InsertBookHandler(w http.ResponseWriter, r *http.Request) {
 	var book bookstorage.Book
 
 	if err := json.NewDecoder(r.Body).Decode(&book); err != nil {
@@ -34,7 +34,7 @@ func InsertBookHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := bookstorage.InsertBook(dbConn, book); err != nil {
+	if err := bookstorage.InsertBook(hD.DbConn, book); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -43,7 +43,7 @@ func InsertBookHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, `{"message": "Book created"}`)
 }
 
-func GetBookByIdHandler(w http.ResponseWriter, r *http.Request) {
+func (hD HandlerData) GetBookByIdHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(r.PathValue("id"))
 
 	if err != nil {
@@ -51,7 +51,7 @@ func GetBookByIdHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	book, err := bookstorage.GetBookById(dbConn, id)
+	book, err := bookstorage.GetBookById(hD.DbConn, id)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
@@ -62,8 +62,8 @@ func GetBookByIdHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(book)
 }
 
-func GetAllBooksHandler(w http.ResponseWriter, r *http.Request) {
-	books, err := bookstorage.GetAllBooks(dbConn)
+func (hD HandlerData) GetAllBooksHandler(w http.ResponseWriter, r *http.Request) {
+	books, err := bookstorage.GetAllBooks(hD.DbConn)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -74,7 +74,7 @@ func GetAllBooksHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(books)
 }
 
-func UpdateBookByIdHandler(w http.ResponseWriter, r *http.Request) {
+func (hD HandlerData) UpdateBookByIdHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(r.PathValue("id"))
 
 	if err != nil {
@@ -91,7 +91,7 @@ func UpdateBookByIdHandler(w http.ResponseWriter, r *http.Request) {
 
 	book.Id = id
 
-	err = bookstorage.UpdateBookById(dbConn, book)
+	err = bookstorage.UpdateBookById(hD.DbConn, book)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -102,7 +102,7 @@ func UpdateBookByIdHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, `{"message": "Book with id = %d was updated"}`, id)
 }
 
-func DeleteBookByIdHandler(w http.ResponseWriter, r *http.Request) {
+func (hD HandlerData) DeleteBookByIdHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(r.PathValue("id"))
 
 	if err != nil {
@@ -110,7 +110,7 @@ func DeleteBookByIdHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = bookstorage.DeleteBookById(dbConn, id)
+	err = bookstorage.DeleteBookById(hD.DbConn, id)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
@@ -120,9 +120,9 @@ func DeleteBookByIdHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, `{"message": "Book with id = %v was deleted"}`, id)
 }
 
-func DeleteAllBooksHandler(w http.ResponseWriter, r *http.Request) {
+func (hD HandlerData) DeleteAllBooksHandler(w http.ResponseWriter, r *http.Request) {
 
-	err := bookstorage.DeleteAllBooks(dbConn)
+	err := bookstorage.DeleteAllBooks(hD.DbConn)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
