@@ -20,7 +20,9 @@ func main() {
 
 	defer db.Close(context.Background())
 
-	handler := server.NewHandler(db)
+	handlerData := server.HandlerData{DbConn: db}
+
+	handler := handlerData.NewHandler()
 
 	log.Println("Server starting on :8080")
 	log.Fatal(http.ListenAndServe(":8080", handler))
