@@ -3,10 +3,11 @@ package bookstorage
 import (
 	"context"
 
+	"github.com/IPOMPONI/go-base-CRUD/internal/model"
 	"github.com/jackc/pgx/v5"
 )
 
-func InsertBook(conn *pgx.Conn, book Book) error {
+func InsertBook(conn *pgx.Conn, book model.Book) error {
 	query := `INSERT INTO Books (title, author, year_published) VALUES ($1, $2, $3)`
 
 	_, err := conn.Exec(context.Background(), query, book.Title, book.Author, book.YearPublished)
@@ -14,10 +15,10 @@ func InsertBook(conn *pgx.Conn, book Book) error {
 	return err
 }
 
-func GetBookById(conn *pgx.Conn, id int) (*Book, error) {
+func GetBookById(conn *pgx.Conn, id int) (*model.Book, error) {
 	query := `SELECT id, title, author, year_published, added_at FROM Books WHERE id = $1`
 
-	var book Book
+	var book model.Book
 
 	err := conn.QueryRow(context.Background(), query, id).Scan(
 		&book.Id,
@@ -34,7 +35,7 @@ func GetBookById(conn *pgx.Conn, id int) (*Book, error) {
 	return &book, nil
 }
 
-func GetAllBooks(conn *pgx.Conn) ([]Book, error) {
+func GetAllBooks(conn *pgx.Conn) ([]model.Book, error) {
 	query := `SELECT id, title, author, year_published, added_at FROM Books ORDER BY id`
 
 	rows, err := conn.Query(context.Background(), query)
@@ -45,10 +46,10 @@ func GetAllBooks(conn *pgx.Conn) ([]Book, error) {
 
 	defer rows.Close()
 
-	var bookAllData []Book
+	var bookAllData []model.Book
 
 	for rows.Next() {
-		var book Book
+		var book model.Book
 
 		err := rows.Scan(
 			&book.Id,
@@ -68,7 +69,7 @@ func GetAllBooks(conn *pgx.Conn) ([]Book, error) {
 	return bookAllData, rows.Err()
 }
 
-func UpdateBookById(conn *pgx.Conn, book Book) error {
+func UpdateBookById(conn *pgx.Conn, book model.Book) error {
 	query := `UPDATE Books SET title = $1, author = $2, year_published = $3 WHERE id = $4`
 
 	_, err := conn.Exec(context.Background(), query, book.Title, book.Author, book.YearPublished, book.Id)

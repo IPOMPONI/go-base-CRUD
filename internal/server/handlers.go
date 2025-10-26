@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/IPOMPONI/go-base-CRUD/internal/bookstorage"
+	"github.com/IPOMPONI/go-base-CRUD/internal/model"
 	"github.com/jackc/pgx/v5"
 )
 
@@ -27,7 +28,7 @@ func (hD HandlerData) NewHandler() http.Handler {
 }
 
 func (hD HandlerData) InsertBookHandler(w http.ResponseWriter, r *http.Request) {
-	var book bookstorage.Book
+	var book model.Book
 
 	if err := json.NewDecoder(r.Body).Decode(&book); err != nil {
 		http.Error(w, "Invalid JSON", http.StatusBadRequest)
@@ -82,7 +83,7 @@ func (hD HandlerData) UpdateBookByIdHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	var book bookstorage.Book
+	var book model.Book
 
 	if err := json.NewDecoder(r.Body).Decode(&book); err != nil {
 		http.Error(w, "Invalid JSON", http.StatusBadRequest)
