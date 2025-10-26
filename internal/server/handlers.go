@@ -6,8 +6,9 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/IPOMPONI/go-base-CRUD/internal/bookstorage"
-	"github.com/IPOMPONI/go-base-CRUD/internal/model"
+	"booklib/internal/bookstorage"
+	"booklib/internal/model"
+
 	"github.com/jackc/pgx/v5"
 )
 

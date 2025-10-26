@@ -3,7 +3,8 @@ package bookstorage
 import (
 	"context"
 
-	"github.com/IPOMPONI/go-base-CRUD/internal/model"
+	"booklib/internal/model"
+
 	"github.com/jackc/pgx/v5"
 )
 

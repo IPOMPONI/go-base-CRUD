@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/IPOMPONI/go-base-CRUD/internal/model"
+	"booklib/internal/model"
 )
 
 func TestInsertBook(t *testing.T) {

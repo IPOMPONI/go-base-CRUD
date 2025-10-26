@@ -5,8 +5,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/IPOMPONI/go-base-CRUD/internal/bookstorage"
-	"github.com/IPOMPONI/go-base-CRUD/internal/server"
+	"booklib/internal/bookstorage"
+	"booklib/internal/server"
 )
 
 func main() {
