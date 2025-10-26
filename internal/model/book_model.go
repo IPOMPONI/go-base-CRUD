@@ -1,4 +1,4 @@
-package bookstorage
+package model
 
 import "time"
 

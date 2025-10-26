@@ -3,6 +3,8 @@ package bookstorage
 import (
 	"context"
 	"testing"
+
+	"booklib/internal/model"
 )
 
 func TestInsertBook(t *testing.T) {
@@ -16,7 +18,7 @@ func TestInsertBook(t *testing.T) {
 
 	defer db.Close(context.Background())
 
-	book := Book{
+	book := model.Book{
 		Title:         "Книга 1",
 		Author:        "Автор 1",
 		YearPublished: 2025,
@@ -34,7 +36,7 @@ func TestInsertBookExistingTitle(t *testing.T) {
 
 	defer db.Close(context.Background())
 
-	book := Book{
+	book := model.Book{
 		Title:         "Книга 1",
 		Author:        "Автор 1",
 		YearPublished: 2025,
@@ -52,7 +54,7 @@ func TestInsertBookZeroYear(t *testing.T) {
 
 	defer db.Close(context.Background())
 
-	book := Book{
+	book := model.Book{
 		Title:         "Книга 1",
 		Author:        "Автор 1",
 		YearPublished: 0,
@@ -70,7 +72,7 @@ func TestInsertBookFutureYear(t *testing.T) {
 
 	defer db.Close(context.Background())
 
-	book := Book{
+	book := model.Book{
 		Title:         "Книга 1",
 		Author:        "Автор 1",
 		YearPublished: 2077,
@@ -88,7 +90,7 @@ func TestGetBookById(t *testing.T) {
 
 	defer db.Close(context.Background())
 
-	var book *Book
+	var book *model.Book
 
 	book, err := GetBookById(db, 1)
 
@@ -106,7 +108,7 @@ func TestGetBookByIncorrectId(t *testing.T) {
 
 	defer db.Close(context.Background())
 
-	var book *Book
+	var book *model.Book
 
 	book, err := GetBookById(db, 2)
 
@@ -124,7 +126,7 @@ func TestGetAllBooks(t *testing.T) {
 
 	defer db.Close(context.Background())
 
-	var books []Book
+	var books []model.Book
 
 	books, err := GetAllBooks(db)
 
@@ -141,7 +143,7 @@ func TestUpdateBookById(t *testing.T) {
 	db, _ := NewConnectDb()
 	defer db.Close(context.Background())
 
-	book := Book{
+	book := model.Book{
 		Id:            1,
 		Title:         "Новое название",
 		Author:        "Новый автор",
