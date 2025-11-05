@@ -5,12 +5,12 @@ import (
 	"log"
 	"net/http"
 
-	"booklib/internal/bookstorage"
+	"booklib/internal/repository"
 	"booklib/internal/server"
 )
 
 func main() {
-	db, err := bookstorage.NewConnectDb()
+	db, err := repository.NewConnectDb()
 
 	if err != nil {
 		log.Fatal("Database connection failed:", err)
@@ -20,10 +20,14 @@ func main() {
 
 	defer db.Close(context.Background())
 
-	handlerData := server.HandlerData{DbConn: db}
+	bookRepo := repository.NewBookRepo(db)
 
-	handler := handlerData.NewHandler()
+	bookHandler := server.NewBookHandler(bookRepo)
+
+	mux := http.NewServeMux()
+
+	bookHandler.InitRoutes(mux)
 
 	log.Println("Server starting on :8080")
-	log.Fatal(http.ListenAndServe(":8080", handler))
+	log.Fatal(http.ListenAndServe(":8080", mux))
 }
