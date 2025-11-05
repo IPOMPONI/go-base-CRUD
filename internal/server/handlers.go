@@ -18,16 +18,13 @@ func NewBookHandler(repo repository.BookRepo) *BookHandler {
 	return &BookHandler{repo: repo}
 }
 
-func (bh *BookHandler) NewHandler() http.Handler {
-	mux := http.NewServeMux()
-
+func (bh *BookHandler) InitRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /books", bh.InsertBookHandler)
 	mux.HandleFunc("GET /books/{id}", bh.GetBookByIdHandler)
 	mux.HandleFunc("GET /books", bh.GetAllBooksHandler)
 	mux.HandleFunc("PUT /books/{id}", bh.UpdateBookByIdHandler)
 	mux.HandleFunc("DELETE /books/{id}", bh.DeleteBookByIdHandler)
 	mux.HandleFunc("DELETE /books", bh.DeleteAllBooksHandler)
-	return mux
 }
 
 func (bh *BookHandler) InsertBookHandler(w http.ResponseWriter, r *http.Request) {
