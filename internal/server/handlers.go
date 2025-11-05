@@ -14,6 +14,10 @@ type BookHandler struct {
 	repo repository.BookRepo
 }
 
+func NewBookHandler(repo repository.BookRepo) *BookHandler {
+	return &BookHandler{repo: repo}
+}
+
 func (bh *BookHandler) NewHandler() http.Handler {
 	mux := http.NewServeMux()
 
