@@ -6,29 +6,27 @@ import (
 	"net/http"
 	"strconv"
 
-	"booklib/internal/bookstorage"
 	"booklib/internal/model"
-
-	"github.com/jackc/pgx/v5"
+	"booklib/internal/repository"
 )
 
-type HandlerData struct {
-	DbConn *pgx.Conn
+type BookHandler struct {
+	repo repository.BookRepo
 }
 
-func (hD HandlerData) NewHandler() http.Handler {
+func (bh *BookHandler) NewHandler() http.Handler {
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("POST /books", hD.InsertBookHandler)
-	mux.HandleFunc("GET /books/{id}", hD.GetBookByIdHandler)
-	mux.HandleFunc("GET /books", hD.GetAllBooksHandler)
-	mux.HandleFunc("PUT /books/{id}", hD.UpdateBookByIdHandler)
-	mux.HandleFunc("DELETE /books/{id}", hD.DeleteBookByIdHandler)
-	mux.HandleFunc("DELETE /books", hD.DeleteAllBooksHandler)
+	mux.HandleFunc("POST /books", bh.InsertBookHandler)
+	mux.HandleFunc("GET /books/{id}", bh.GetBookByIdHandler)
+	mux.HandleFunc("GET /books", bh.GetAllBooksHandler)
+	mux.HandleFunc("PUT /books/{id}", bh.UpdateBookByIdHandler)
+	mux.HandleFunc("DELETE /books/{id}", bh.DeleteBookByIdHandler)
+	mux.HandleFunc("DELETE /books", bh.DeleteAllBooksHandler)
 	return mux
 }
 
-func (hD HandlerData) InsertBookHandler(w http.ResponseWriter, r *http.Request) {
+func (bh *BookHandler) InsertBookHandler(w http.ResponseWriter, r *http.Request) {
 	var book model.Book
 
 	if err := json.NewDecoder(r.Body).Decode(&book); err != nil {
@@ -36,7 +34,7 @@ func (hD HandlerData) InsertBookHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	if err := bookstorage.InsertBook(hD.DbConn, book); err != nil {
+	if err := bh.repo.InsertBook(r.Context(), book); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -45,7 +43,7 @@ func (hD HandlerData) InsertBookHandler(w http.ResponseWriter, r *http.Request) 
 	fmt.Fprintf(w, `{"message": "Book created"}`)
 }
 
-func (hD HandlerData) GetBookByIdHandler(w http.ResponseWriter, r *http.Request) {
+func (bh *BookHandler) GetBookByIdHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(r.PathValue("id"))
 
 	if err != nil {
@@ -53,7 +51,7 @@ func (hD HandlerData) GetBookByIdHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	book, err := bookstorage.GetBookById(hD.DbConn, id)
+	book, err := bh.repo.GetBookById(r.Context(), id)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
@@ -64,8 +62,8 @@ func (hD HandlerData) GetBookByIdHandler(w http.ResponseWriter, r *http.Request)
 	json.NewEncoder(w).Encode(book)
 }
 
-func (hD HandlerData) GetAllBooksHandler(w http.ResponseWriter, r *http.Request) {
-	books, err := bookstorage.GetAllBooks(hD.DbConn)
+func (bh *BookHandler) GetAllBooksHandler(w http.ResponseWriter, r *http.Request) {
+	books, err := bh.repo.GetAllBooks(r.Context())
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -76,7 +74,7 @@ func (hD HandlerData) GetAllBooksHandler(w http.ResponseWriter, r *http.Request)
 	json.NewEncoder(w).Encode(books)
 }
 
-func (hD HandlerData) UpdateBookByIdHandler(w http.ResponseWriter, r *http.Request) {
+func (bh *BookHandler) UpdateBookByIdHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(r.PathValue("id"))
 
 	if err != nil {
@@ -93,7 +91,7 @@ func (hD HandlerData) UpdateBookByIdHandler(w http.ResponseWriter, r *http.Reque
 
 	book.Id = id
 
-	err = bookstorage.UpdateBookById(hD.DbConn, book)
+	err = bh.repo.UpdateBookById(r.Context(), book)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -104,7 +102,7 @@ func (hD HandlerData) UpdateBookByIdHandler(w http.ResponseWriter, r *http.Reque
 	fmt.Fprintf(w, `{"message": "Book with id = %d was updated"}`, id)
 }
 
-func (hD HandlerData) DeleteBookByIdHandler(w http.ResponseWriter, r *http.Request) {
+func (bh *BookHandler) DeleteBookByIdHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(r.PathValue("id"))
 
 	if err != nil {
@@ -112,7 +110,7 @@ func (hD HandlerData) DeleteBookByIdHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	err = bookstorage.DeleteBookById(hD.DbConn, id)
+	err = bh.repo.DeleteBookById(r.Context(), id)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
@@ -122,9 +120,9 @@ func (hD HandlerData) DeleteBookByIdHandler(w http.ResponseWriter, r *http.Reque
 	fmt.Fprintf(w, `{"message": "Book with id = %v was deleted"}`, id)
 }
 
-func (hD HandlerData) DeleteAllBooksHandler(w http.ResponseWriter, r *http.Request) {
+func (bh *BookHandler) DeleteAllBooksHandler(w http.ResponseWriter, r *http.Request) {
 
-	err := bookstorage.DeleteAllBooks(hD.DbConn)
+	err := bh.repo.DeleteAllBooks(r.Context())
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
