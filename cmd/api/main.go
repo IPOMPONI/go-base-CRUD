@@ -5,8 +5,8 @@ import (
 	"log"
 	"net/http"
 
+	"booklib/internal/handler"
 	"booklib/internal/repository/postgresql"
-	"booklib/internal/server"
 )
 
 func main() {
@@ -22,7 +22,7 @@ func main() {
 
 	bookRepo := postgresql.NewBookRepo(db)
 
-	bookHandler := server.NewBookHandler(bookRepo)
+	bookHandler := handler.NewBookHandler(bookRepo)
 
 	mux := http.NewServeMux()
 
