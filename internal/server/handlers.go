@@ -6,15 +6,14 @@ import (
 	"net/http"
 	"strconv"
 
-	"booklib/internal/model"
-	"booklib/internal/repository"
+	"booklib/internal/domain"
 )
 
 type BookHandler struct {
-	repo repository.BookRepo
+	repo domain.BookRepo
 }
 
-func NewBookHandler(repo repository.BookRepo) *BookHandler {
+func NewBookHandler(repo domain.BookRepo) *BookHandler {
 	return &BookHandler{repo: repo}
 }
 
@@ -28,7 +27,7 @@ func (bh *BookHandler) InitRoutes(mux *http.ServeMux) {
 }
 
 func (bh *BookHandler) insertBook(w http.ResponseWriter, r *http.Request) {
-	var book model.Book
+	var book domain.Book
 
 	if err := json.NewDecoder(r.Body).Decode(&book); err != nil {
 		http.Error(w, "Invalid JSON", http.StatusBadRequest)
@@ -83,7 +82,7 @@ func (bh *BookHandler) updateBookById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var book model.Book
+	var book domain.Book
 
 	if err := json.NewDecoder(r.Body).Decode(&book); err != nil {
 		http.Error(w, "Invalid JSON", http.StatusBadRequest)
