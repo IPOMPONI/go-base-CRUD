@@ -1,4 +1,4 @@
-package bookstorage
+package repository
 
 import (
 	"context"
