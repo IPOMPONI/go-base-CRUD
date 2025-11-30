@@ -1,9 +1,9 @@
-package repository
+package postgresql
 
 import (
 	"context"
 
-	"booklib/internal/model"
+	"booklib/internal/domain"
 
 	"github.com/jackc/pgx/v5"
 )
@@ -16,7 +16,7 @@ func NewBookRepo(conn *pgx.Conn) *PgRepo {
 	return &PgRepo{conn: conn}
 }
 
-func (pgr *PgRepo) InsertBook(ctx context.Context, book model.Book) error {
+func (pgr *PgRepo) InsertBook(ctx context.Context, book domain.Book) error {
 	query := `INSERT INTO Books (title, author, year_published) VALUES ($1, $2, $3)`
 
 	_, err := pgr.conn.Exec(ctx, query, book.Title, book.Author, book.YearPublished)
@@ -24,10 +24,10 @@ func (pgr *PgRepo) InsertBook(ctx context.Context, book model.Book) error {
 	return err
 }
 
-func (pgr *PgRepo) GetBookById(ctx context.Context, id int) (*model.Book, error) {
+func (pgr *PgRepo) GetBookById(ctx context.Context, id int) (*domain.Book, error) {
 	query := `SELECT id, title, author, year_published, added_at FROM Books WHERE id = $1`
 
-	var book model.Book
+	var book domain.Book
 
 	err := pgr.conn.QueryRow(ctx, query, id).Scan(
 		&book.Id,
@@ -44,7 +44,7 @@ func (pgr *PgRepo) GetBookById(ctx context.Context, id int) (*model.Book, error)
 	return &book, nil
 }
 
-func (pgr *PgRepo) GetAllBooks(ctx context.Context) ([]model.Book, error) {
+func (pgr *PgRepo) GetAllBooks(ctx context.Context) ([]domain.Book, error) {
 	query := `SELECT id, title, author, year_published, added_at FROM Books ORDER BY id`
 
 	rows, err := pgr.conn.Query(ctx, query)
@@ -55,10 +55,10 @@ func (pgr *PgRepo) GetAllBooks(ctx context.Context) ([]model.Book, error) {
 
 	defer rows.Close()
 
-	var bookAllData []model.Book
+	var bookAllData []domain.Book
 
 	for rows.Next() {
-		var book model.Book
+		var book domain.Book
 
 		err := rows.Scan(
 			&book.Id,
@@ -78,7 +78,7 @@ func (pgr *PgRepo) GetAllBooks(ctx context.Context) ([]model.Book, error) {
 	return bookAllData, rows.Err()
 }
 
-func (pgr *PgRepo) UpdateBookById(ctx context.Context, book model.Book) error {
+func (pgr *PgRepo) UpdateBookById(ctx context.Context, book domain.Book) error {
 	query := `UPDATE Books SET title = $1, author = $2, year_published = $3 WHERE id = $4`
 
 	_, err := pgr.conn.Exec(ctx, query, book.Title, book.Author, book.YearPublished, book.Id)

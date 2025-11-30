@@ -5,12 +5,12 @@ import (
 	"log"
 	"net/http"
 
-	"booklib/internal/repository"
-	"booklib/internal/server"
+	"booklib/internal/handler"
+	"booklib/internal/repository/postgresql"
 )
 
 func main() {
-	db, err := repository.NewConnectDb()
+	db, err := postgresql.NewConnectDb()
 
 	if err != nil {
 		log.Fatal("Database connection failed:", err)
@@ -20,9 +20,9 @@ func main() {
 
 	defer db.Close(context.Background())
 
-	bookRepo := repository.NewBookRepo(db)
+	bookRepo := postgresql.NewBookRepo(db)
 
-	bookHandler := server.NewBookHandler(bookRepo)
+	bookHandler := handler.NewBookHandler(bookRepo)
 
 	mux := http.NewServeMux()
 

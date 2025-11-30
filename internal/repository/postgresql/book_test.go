@@ -1,10 +1,10 @@
-package repository
+package postgresql
 
 import (
 	"context"
 	"testing"
 
-	"booklib/internal/model"
+	"booklib/internal/domain"
 )
 
 func TestInsertBook(t *testing.T) {
@@ -18,7 +18,7 @@ func TestInsertBook(t *testing.T) {
 
 	defer db.Close(context.Background())
 
-	book := model.Book{
+	book := domain.Book{
 		Title:         "Книга 1",
 		Author:        "Автор 1",
 		YearPublished: 2025,
@@ -36,7 +36,7 @@ func TestInsertBookExistingTitle(t *testing.T) {
 
 	defer db.Close(context.Background())
 
-	book := model.Book{
+	book := domain.Book{
 		Title:         "Книга 1",
 		Author:        "Автор 1",
 		YearPublished: 2025,
@@ -54,7 +54,7 @@ func TestInsertBookZeroYear(t *testing.T) {
 
 	defer db.Close(context.Background())
 
-	book := model.Book{
+	book := domain.Book{
 		Title:         "Книга 1",
 		Author:        "Автор 1",
 		YearPublished: 0,
@@ -72,7 +72,7 @@ func TestInsertBookFutureYear(t *testing.T) {
 
 	defer db.Close(context.Background())
 
-	book := model.Book{
+	book := domain.Book{
 		Title:         "Книга 1",
 		Author:        "Автор 1",
 		YearPublished: 2077,
@@ -138,7 +138,7 @@ func TestUpdateBookById(t *testing.T) {
 
 	defer db.Close(context.Background())
 
-	book := model.Book{
+	book := domain.Book{
 		Id:            1,
 		Title:         "Новое название",
 		Author:        "Новый автор",
