@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"os"
 
 	"booklib/internal/handler"
 	"booklib/internal/repository/postgresql"
@@ -28,6 +29,6 @@ func main() {
 
 	bookHandler.InitRoutes(mux)
 
-	log.Println("Server starting on :8080")
-	log.Fatal(http.ListenAndServe(":8080", mux))
+	log.Println("Server starting on :" + os.Getenv("PORT"))
+	log.Fatal(http.ListenAndServe(":"+os.Getenv("PORT"), mux))
 }
