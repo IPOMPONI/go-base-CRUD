@@ -2,11 +2,10 @@ package handler
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
-	"strconv"
 
 	"booklib/internal/domain"
+	"booklib/internal/middleware"
 )
 
 type BookHandler struct {
@@ -19,11 +18,11 @@ func NewBookHandler(repo domain.BookRepo) *BookHandler {
 
 func (bh *BookHandler) InitRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /books", bh.insertBook)
-	mux.HandleFunc("GET /books/{id}", bh.getBookById)
 	mux.HandleFunc("GET /books", bh.getAllBooks)
-	mux.HandleFunc("PUT /books/{id}", bh.updateBookById)
-	mux.HandleFunc("DELETE /books/{id}", bh.deleteBookById)
 	mux.HandleFunc("DELETE /books", bh.deleteAllBooks)
+	mux.Handle("GET /books/{id}", middleware.CheckBookIdMiddleware(http.HandlerFunc(bh.getBookById)))
+	mux.Handle("PUT /books/{id}", middleware.CheckBookIdMiddleware(http.HandlerFunc(bh.updateBookById)))
+	mux.Handle("DELETE /books/{id}", middleware.CheckBookIdMiddleware(http.HandlerFunc(bh.deleteBookById)))
 }
 
 func (bh *BookHandler) insertBook(w http.ResponseWriter, r *http.Request) {
@@ -40,16 +39,15 @@ func (bh *BookHandler) insertBook(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	fmt.Fprintf(w, `{"message": "Book created"}`)
 }
 
 func (bh *BookHandler) getBookById(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(r.PathValue("id"))
+ 	id, ok := r.Context().Value("bookId").(int)
 
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
+  	if !ok {
+        http.Error(w, "Book 'id' not found in context", http.StatusInternalServerError)
+        return
+    }
 
 	book, err := bh.repo.GetBookById(r.Context(), id)
 
@@ -75,12 +73,12 @@ func (bh *BookHandler) getAllBooks(w http.ResponseWriter, r *http.Request) {
 }
 
 func (bh *BookHandler) updateBookById(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(r.PathValue("id"))
+	id, ok := r.Context().Value("bookId").(int)
 
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
+	if !ok {
+        http.Error(w, "Book 'id' not found in context", http.StatusInternalServerError)
+        return
+    }
 
 	var book domain.Book
 
@@ -91,7 +89,7 @@ func (bh *BookHandler) updateBookById(w http.ResponseWriter, r *http.Request) {
 
 	book.Id = id
 
-	err = bh.repo.UpdateBookById(r.Context(), book)
+	err := bh.repo.UpdateBookById(r.Context(), book)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -99,25 +97,22 @@ func (bh *BookHandler) updateBookById(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprintf(w, `{"message": "Book with id = %d was updated"}`, id)
 }
 
 func (bh *BookHandler) deleteBookById(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(r.PathValue("id"))
+	id, ok := r.Context().Value("bookId").(int)
 
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
+	if !ok {
+        http.Error(w, "Book 'id' not found in context", http.StatusInternalServerError)
+        return
+    }
 
-	err = bh.repo.DeleteBookById(r.Context(), id)
+	err := bh.repo.DeleteBookById(r.Context(), id)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
-
-	fmt.Fprintf(w, `{"message": "Book with id = %v was deleted"}`, id)
 }
 
 func (bh *BookHandler) deleteAllBooks(w http.ResponseWriter, r *http.Request) {
@@ -128,6 +123,4 @@ func (bh *BookHandler) deleteAllBooks(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
-	fmt.Fprintf(w, `{"message": "All books deleted"}`)
 }

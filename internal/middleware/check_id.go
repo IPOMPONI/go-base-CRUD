@@ -1,0 +1,28 @@
+package middleware
+
+import (
+	"log"
+	"strconv"
+	"context"
+	"net/http"
+)
+
+func CheckBookIdMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		id, err := strconv.Atoi(r.PathValue("id"))
+
+		if err != nil {
+			log.Printf("[ERROR]: %s %s - %s", r.Method, r.URL, err.Error())
+			http.Error(w, "'id' is invalid", http.StatusBadRequest)
+			return
+		}
+
+		if id < 0 {
+			log.Printf("[ERROR]: %s %s - 'id' is negative", r.Method, r.URL)
+			http.Error(w, "'id' is negative", http.StatusBadRequest)
+			return
+		}
+		ctx := context.WithValue(r.Context(), "bookId", id)
+		next.ServeHTTP(w, r.WithContext(ctx));
+	})
+}
