@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"booklib/internal/handler"
+	"booklib/internal/middleware"
 	"booklib/internal/repository/postgresql"
 )
 
@@ -29,6 +30,12 @@ func main() {
 
 	bookHandler.InitRoutes(mux)
 
+	handler := middleware.Chain(
+		mux,
+		middleware.RecoveryMiddleware,
+		middleware.LoggingMiddleware,
+	)
+
 	log.Println("Server starting on :" + os.Getenv("PORT"))
-	log.Fatal(http.ListenAndServe(":"+os.Getenv("PORT"), mux))
+	log.Fatal(http.ListenAndServe(":"+os.Getenv("PORT"), handler))
 }
