@@ -2,7 +2,6 @@ package handler
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -40,7 +39,6 @@ func (bh *BookHandler) insertBook(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	fmt.Fprintf(w, `{"message": "Book created"}`)
 }
 
 func (bh *BookHandler) getBookById(w http.ResponseWriter, r *http.Request) {
@@ -99,7 +97,6 @@ func (bh *BookHandler) updateBookById(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprintf(w, `{"message": "Book with id = %d was updated"}`, id)
 }
 
 func (bh *BookHandler) deleteBookById(w http.ResponseWriter, r *http.Request) {
@@ -116,8 +113,6 @@ func (bh *BookHandler) deleteBookById(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
-
-	fmt.Fprintf(w, `{"message": "Book with id = %v was deleted"}`, id)
 }
 
 func (bh *BookHandler) deleteAllBooks(w http.ResponseWriter, r *http.Request) {
@@ -128,6 +123,4 @@ func (bh *BookHandler) deleteAllBooks(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
-	fmt.Fprintf(w, `{"message": "All books deleted"}`)
 }
