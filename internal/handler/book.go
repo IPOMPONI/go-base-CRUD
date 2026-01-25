@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"booklib/internal/domain"
+	"booklib/internal/pkg/utils"
 	"booklib/internal/middleware"
 )
 
@@ -42,7 +43,7 @@ func (bh *BookHandler) insertBook(w http.ResponseWriter, r *http.Request) {
 }
 
 func (bh *BookHandler) getBookById(w http.ResponseWriter, r *http.Request) {
- 	id, ok := r.Context().Value("bookId").(int)
+ 	id, ok := utils.GetBookIdFromCtx(r.Context())
 
   	if !ok {
         http.Error(w, "Book 'id' not found in context!", http.StatusInternalServerError)
@@ -73,8 +74,7 @@ func (bh *BookHandler) getAllBooks(w http.ResponseWriter, r *http.Request) {
 }
 
 func (bh *BookHandler) updateBookById(w http.ResponseWriter, r *http.Request) {
-	id, ok := r.Context().Value("bookId").(int)
-
+	id, ok := utils.GetBookIdFromCtx(r.Context())
 	if !ok {
         http.Error(w, "Book 'id' not found in context!", http.StatusInternalServerError)
         return
@@ -100,7 +100,7 @@ func (bh *BookHandler) updateBookById(w http.ResponseWriter, r *http.Request) {
 }
 
 func (bh *BookHandler) deleteBookById(w http.ResponseWriter, r *http.Request) {
-	id, ok := r.Context().Value("bookId").(int)
+	id, ok := utils.GetBookIdFromCtx(r.Context())
 
 	if !ok {
         http.Error(w, "Book 'id' not found in context!", http.StatusInternalServerError)
