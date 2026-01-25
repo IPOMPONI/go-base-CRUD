@@ -96,7 +96,7 @@ func (bh *BookHandler) updateBookById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func (bh *BookHandler) deleteBookById(w http.ResponseWriter, r *http.Request) {
@@ -113,6 +113,8 @@ func (bh *BookHandler) deleteBookById(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Error deleting the book by the specified 'id'!", http.StatusNotFound)
 		return
 	}
+
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func (bh *BookHandler) deleteAllBooks(w http.ResponseWriter, r *http.Request) {
@@ -123,4 +125,6 @@ func (bh *BookHandler) deleteAllBooks(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Error deleting the books!", http.StatusInternalServerError)
 		return
 	}
+
+	w.WriteHeader(http.StatusNoContent)
 }
