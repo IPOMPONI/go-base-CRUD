@@ -3,8 +3,9 @@ package middleware
 import (
 	"log"
 	"strconv"
-	"context"
 	"net/http"
+
+	"booklib/internal/pkg/utils"
 )
 
 func CheckBookIdMiddleware(next http.Handler) http.Handler {
@@ -22,7 +23,7 @@ func CheckBookIdMiddleware(next http.Handler) http.Handler {
 			http.Error(w, "'id' is negative", http.StatusBadRequest)
 			return
 		}
-		ctx := context.WithValue(r.Context(), "bookId", id)
+		ctx := utils.SetBookIdInCtx(r.Context(), id)
 		next.ServeHTTP(w, r.WithContext(ctx));
 	})
 }
