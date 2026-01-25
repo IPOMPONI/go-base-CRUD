@@ -34,7 +34,7 @@ func (bh *BookHandler) insertBook(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := bh.repo.InsertBook(r.Context(), book); err != nil {
-		http.Error(w, "Data insertion error!", http.StatusBadRequest)
+		http.Error(w, "Data insertion error!", http.StatusInternalServerError)
 		return
 	}
 
@@ -92,7 +92,7 @@ func (bh *BookHandler) updateBookById(w http.ResponseWriter, r *http.Request) {
 	err := bh.repo.UpdateBookById(r.Context(), book)
 
 	if err != nil {
-		http.Error(w, "Error updating the book by the specified 'id'!", http.StatusBadRequest)
+		http.Error(w, "Error updating the book by the specified 'id'!", http.StatusInternalServerError)
 		return
 	}
 
