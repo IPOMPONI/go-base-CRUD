@@ -1,6 +1,7 @@
 package postgresql
 
 import (
+	"time"
 	"context"
 	"testing"
 
@@ -8,15 +9,18 @@ import (
 )
 
 func TestInsertBook(t *testing.T) {
-	db, _ := NewConnectDb()
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	db, _ := NewConnectDb(ctx)
 	repo := NewBookRepo(db)
 
-	_, err := db.Exec(context.Background(), "TRUNCATE TABLE books RESTART IDENTITY")
+	_, err := db.Exec(ctx, "TRUNCATE TABLE books RESTART IDENTITY")
 	if err != nil {
-		t.Fatalf("Error truncate table!")
+		t.Fatalf("Error truncate table! %v", err)
 	}
 
-	defer db.Close(context.Background())
+	defer db.Close(ctx)
 
 	book := domain.Book{
 		Title:         "Книга 1",
@@ -24,17 +28,20 @@ func TestInsertBook(t *testing.T) {
 		YearPublished: 2025,
 	}
 
-	err = repo.InsertBook(context.Background(), book)
+	err = repo.InsertBook(ctx, book)
 	if err != nil {
 		t.Fatalf("Error insert book! %v", err)
 	}
 }
 
 func TestInsertBookExistingTitle(t *testing.T) {
-	db, _ := NewConnectDb()
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	db, _ := NewConnectDb(ctx)
 	repo := NewBookRepo(db)
 
-	defer db.Close(context.Background())
+	defer db.Close(ctx)
 
 	book := domain.Book{
 		Title:         "Книга 1",
@@ -42,17 +49,20 @@ func TestInsertBookExistingTitle(t *testing.T) {
 		YearPublished: 2025,
 	}
 
-	err := repo.InsertBook(context.Background(), book)
+	err := repo.InsertBook(ctx, book)
 	if err == nil {
 		t.Error("Expected error for existing title")
 	}
 }
 
 func TestInsertBookZeroYear(t *testing.T) {
-	db, _ := NewConnectDb()
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	db, _ := NewConnectDb(ctx)
 	repo := NewBookRepo(db)
 
-	defer db.Close(context.Background())
+	defer db.Close(ctx)
 
 	book := domain.Book{
 		Title:         "Книга 1",
@@ -60,17 +70,20 @@ func TestInsertBookZeroYear(t *testing.T) {
 		YearPublished: 0,
 	}
 
-	err := repo.InsertBook(context.Background(), book)
+	err := repo.InsertBook(ctx, book)
 	if err == nil {
 		t.Error("Expected error for zero year.")
 	}
 }
 
 func TestInsertBookFutureYear(t *testing.T) {
-	db, _ := NewConnectDb()
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	db, _ := NewConnectDb(ctx)
 	repo := NewBookRepo(db)
 
-	defer db.Close(context.Background())
+	defer db.Close(ctx)
 
 	book := domain.Book{
 		Title:         "Книга 1",
@@ -78,19 +91,22 @@ func TestInsertBookFutureYear(t *testing.T) {
 		YearPublished: 2077,
 	}
 
-	err := repo.InsertBook(context.Background(), book)
+	err := repo.InsertBook(ctx, book)
 	if err == nil {
 		t.Error("Expected error for future year.")
 	}
 }
 
 func TestGetBookById(t *testing.T) {
-	db, _ := NewConnectDb()
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	db, _ := NewConnectDb(ctx)
 	repo := NewBookRepo(db)
 
-	defer db.Close(context.Background())
+	defer db.Close(ctx)
 
-	book, err := repo.GetBookById(context.Background(), 1)
+	book, err := repo.GetBookById(ctx, 1)
 	if book == nil {
 		t.Fatalf("Geted book is nil!")
 	}
@@ -101,12 +117,15 @@ func TestGetBookById(t *testing.T) {
 }
 
 func TestGetBookByIncorrectId(t *testing.T) {
-	db, _ := NewConnectDb()
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	db, _ := NewConnectDb(ctx)
 	repo := NewBookRepo(db)
 
-	defer db.Close(context.Background())
+	defer db.Close(ctx)
 
-	book, err := repo.GetBookById(context.Background(), 2)
+	book, err := repo.GetBookById(ctx, 2)
 	if book != nil {
 		t.Error("Expected to be nil for incorrect id.")
 	}
@@ -117,12 +136,15 @@ func TestGetBookByIncorrectId(t *testing.T) {
 }
 
 func TestGetAllBooks(t *testing.T) {
-	db, _ := NewConnectDb()
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	db, _ := NewConnectDb(ctx)
 	repo := NewBookRepo(db)
 
-	defer db.Close(context.Background())
+	defer db.Close(ctx)
 
-	books, err := repo.GetAllBooks(context.Background())
+	books, err := repo.GetAllBooks(ctx)
 	if len(books) == 0 {
 		t.Fatal("Getted data is empty")
 	}
@@ -133,10 +155,13 @@ func TestGetAllBooks(t *testing.T) {
 }
 
 func TestUpdateBookById(t *testing.T) {
-	db, _ := NewConnectDb()
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	db, _ := NewConnectDb(ctx)
 	repo := NewBookRepo(db)
 
-	defer db.Close(context.Background())
+	defer db.Close(ctx)
 
 	book := domain.Book{
 		Id:            1,
@@ -145,31 +170,37 @@ func TestUpdateBookById(t *testing.T) {
 		YearPublished: 2024,
 	}
 
-	err := repo.UpdateBookById(context.Background(), book)
+	err := repo.UpdateBookById(ctx, book)
 	if err != nil {
 		t.Fatalf("Error update book! %v", err)
 	}
 }
 
 func TestDeleteBookById(t *testing.T) {
-	db, _ := NewConnectDb()
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	db, _ := NewConnectDb(ctx)
 	repo := NewBookRepo(db)
 
-	defer db.Close(context.Background())
+	defer db.Close(ctx)
 
-	err := repo.DeleteBookById(context.Background(), 1)
+	err := repo.DeleteBookById(ctx, 1)
 	if err != nil {
 		t.Fatalf("Error delete book! %v", err)
 	}
 }
 
 func TestDeleteAllBooks(t *testing.T) {
-	db, _ := NewConnectDb()
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	db, _ := NewConnectDb(ctx)
 	repo := NewBookRepo(db)
 
-	defer db.Close(context.Background())
+	defer db.Close(ctx)
 
-	err := repo.DeleteAllBooks(context.Background())
+	err := repo.DeleteAllBooks(ctx)
 	if err != nil {
 		t.Fatalf("Error delete all books! %v", err)
 	}
