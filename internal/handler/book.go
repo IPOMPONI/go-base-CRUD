@@ -30,12 +30,12 @@ func (bh *BookHandler) insertBook(w http.ResponseWriter, r *http.Request) {
 	var book domain.Book
 
 	if err := json.NewDecoder(r.Body).Decode(&book); err != nil {
-		http.Error(w, "Invalid JSON!", http.StatusBadRequest)
+		utils.SendJSONError(w, "Invalid JSON!", http.StatusBadRequest)
 		return
 	}
 
 	if err := bh.repo.InsertBook(r.Context(), book); err != nil {
-		http.Error(w, "Data insertion error!", http.StatusInternalServerError)
+		utils.SendJSONError(w, "Data insertion error!", http.StatusInternalServerError)
 		return
 	}
 
@@ -46,14 +46,14 @@ func (bh *BookHandler) getBookById(w http.ResponseWriter, r *http.Request) {
  	id, ok := utils.GetBookIdFromCtx(r.Context())
 
   	if !ok {
-        http.Error(w, "Book 'id' not found in context!", http.StatusInternalServerError)
+        utils.SendJSONError(w, "Book 'id' not found in context!", http.StatusInternalServerError)
         return
     }
 
 	book, err := bh.repo.GetBookById(r.Context(), id)
 
 	if err != nil {
-		http.Error(w, "Error getting the book by the specified 'id'!", http.StatusNotFound)
+		utils.SendJSONError(w, "Error getting the book by the specified 'id'!", http.StatusNotFound)
 		return
 	}
 
@@ -65,7 +65,7 @@ func (bh *BookHandler) getAllBooks(w http.ResponseWriter, r *http.Request) {
 	books, err := bh.repo.GetAllBooks(r.Context())
 
 	if err != nil {
-		http.Error(w, "Error getting the books!", http.StatusInternalServerError)
+		utils.SendJSONError(w, "Error getting the books!", http.StatusInternalServerError)
 		return
 	}
 
@@ -76,14 +76,14 @@ func (bh *BookHandler) getAllBooks(w http.ResponseWriter, r *http.Request) {
 func (bh *BookHandler) updateBookById(w http.ResponseWriter, r *http.Request) {
 	id, ok := utils.GetBookIdFromCtx(r.Context())
 	if !ok {
-        http.Error(w, "Book 'id' not found in context!", http.StatusInternalServerError)
+        utils.SendJSONError(w, "Book 'id' not found in context!", http.StatusInternalServerError)
         return
     }
 
 	var book domain.Book
 
 	if err := json.NewDecoder(r.Body).Decode(&book); err != nil {
-		http.Error(w, "Invalid JSON!", http.StatusBadRequest)
+		utils.SendJSONError(w, "Invalid JSON!", http.StatusBadRequest)
 		return
 	}
 
@@ -92,7 +92,7 @@ func (bh *BookHandler) updateBookById(w http.ResponseWriter, r *http.Request) {
 	err := bh.repo.UpdateBookById(r.Context(), book)
 
 	if err != nil {
-		http.Error(w, "Error updating the book by the specified 'id'!", http.StatusInternalServerError)
+		utils.SendJSONError(w, "Error updating the book by the specified 'id'!", http.StatusInternalServerError)
 		return
 	}
 
@@ -103,14 +103,14 @@ func (bh *BookHandler) deleteBookById(w http.ResponseWriter, r *http.Request) {
 	id, ok := utils.GetBookIdFromCtx(r.Context())
 
 	if !ok {
-        http.Error(w, "Book 'id' not found in context!", http.StatusInternalServerError)
+        utils.SendJSONError(w, "Book 'id' not found in context!", http.StatusInternalServerError)
         return
     }
 
 	err := bh.repo.DeleteBookById(r.Context(), id)
 
 	if err != nil {
-		http.Error(w, "Error deleting the book by the specified 'id'!", http.StatusNotFound)
+		utils.SendJSONError(w, "Error deleting the book by the specified 'id'!", http.StatusNotFound)
 		return
 	}
 
@@ -122,7 +122,7 @@ func (bh *BookHandler) deleteAllBooks(w http.ResponseWriter, r *http.Request) {
 	err := bh.repo.DeleteAllBooks(r.Context())
 
 	if err != nil {
-		http.Error(w, "Error deleting the books!", http.StatusInternalServerError)
+		utils.SendJSONError(w, "Error deleting the books!", http.StatusInternalServerError)
 		return
 	}
 

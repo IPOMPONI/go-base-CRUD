@@ -3,6 +3,8 @@ package middleware
 import (
 	"log"
 	"net/http"
+
+	"booklib/internal/pkg/utils"
 )
 
 func RecoveryMiddleware(next http.Handler) http.Handler {
@@ -10,7 +12,7 @@ func RecoveryMiddleware(next http.Handler) http.Handler {
 		defer func() {
 			if err := recover(); err != nil {
 				log.Printf("[FATAL]: panic recovered %v", err)
-				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+				utils.SendJSONError(w, "Internal Server Error", http.StatusInternalServerError)
 			}
 		}()
 
