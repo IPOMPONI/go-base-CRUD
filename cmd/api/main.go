@@ -19,7 +19,9 @@ func main() {
 
 	if err != nil {
 		log.Println("Database connection failed:", err)
-		return
+
+		cancel()
+		os.Exit(1)
 	}
 
 	log.Println("Database connected!")
