@@ -24,6 +24,6 @@ func CheckBookIdMiddleware(next http.Handler) http.Handler {
 			return
 		}
 		ctx := utils.SetBookIdInCtx(r.Context(), id)
-		next.ServeHTTP(w, r.WithContext(ctx));
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
