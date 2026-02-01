@@ -58,7 +58,11 @@ func (bh *BookHandler) getBookById(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(book)
+
+ 	if err := json.NewEncoder(w).Encode(book); err != nil {
+        sendJSONError(w, "Error encoding response", http.StatusInternalServerError)
+        return
+    }
 }
 
 func (bh *BookHandler) getAllBooks(w http.ResponseWriter, r *http.Request) {
@@ -70,7 +74,12 @@ func (bh *BookHandler) getAllBooks(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(books)
+
+	if err := json.NewEncoder(w).Encode(books); err != nil {
+        sendJSONError(w, "Error encoding response", http.StatusInternalServerError)
+        return
+    }
+
 }
 
 func (bh *BookHandler) updateBookById(w http.ResponseWriter, r *http.Request) {
