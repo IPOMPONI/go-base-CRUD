@@ -10,7 +10,10 @@ func SendJSONError(w http.ResponseWriter, message string, httpStatus int) {
         "error": message,
     }
 
-    w.Header().Set("Content-Type", "application/json")
+    if w.Header().Get("Content-Type") == "" {
+            w.Header().Set("Content-Type", "application/json")
+    }
+
     w.WriteHeader(httpStatus)
     json.NewEncoder(w).Encode(errorResponse)
 }
