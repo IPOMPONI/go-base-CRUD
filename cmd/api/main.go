@@ -14,7 +14,6 @@ import (
 
 func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 5 * time.Second)
-	defer cancel()
 
 	db, err := postgresql.NewConnectDb(ctx)
 
@@ -25,7 +24,10 @@ func main() {
 
 	log.Println("Database connected!")
 
-	defer db.Close(ctx)
+	defer func() {
+		db.Close(ctx)
+		cancel()
+	}()
 
 	bookRepo := postgresql.NewBookRepo(db)
 
@@ -49,5 +51,12 @@ func main() {
 	}
 
 	log.Println("Server starting on :" + port)
-	log.Println(http.ListenAndServe(":" + port, handler))
+
+	if err := http.ListenAndServe(":" + port, handler); err != nil && err != http.ErrServerClosed {
+		log.Println("Server startup error on :" + port)
+
+		db.Close(ctx)
+		cancel()
+		os.Exit(1)
+	}
 }
