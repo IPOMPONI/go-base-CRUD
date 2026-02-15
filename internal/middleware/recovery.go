@@ -16,6 +16,6 @@ func RecoveryMiddleware(next http.Handler) http.Handler {
 			}
 		}()
 
-		next.ServeHTTP(w, r);
+		next.ServeHTTP(w, r)
 	})
 }

@@ -3,9 +3,9 @@ package main
 import (
 	"context"
 	"log"
-	"time"
 	"net/http"
 	"os"
+	"time"
 
 	"booklib/internal/handler"
 	"booklib/internal/middleware"
@@ -13,7 +13,7 @@ import (
 )
 
 func main() {
-	ctx, cancel := context.WithTimeout(context.Background(), 5 * time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 
 	db, err := postgresql.NewConnectDb(ctx)
 
@@ -54,7 +54,7 @@ func main() {
 
 	log.Println("Server starting on :" + port)
 
-	if err := http.ListenAndServe(":" + port, handler); err != nil && err != http.ErrServerClosed {
+	if err := http.ListenAndServe(":"+port, handler); err != nil && err != http.ErrServerClosed {
 		log.Println("Server startup error on :" + port)
 
 		db.Close(ctx)

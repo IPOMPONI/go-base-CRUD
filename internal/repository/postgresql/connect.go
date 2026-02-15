@@ -8,5 +8,5 @@ import (
 )
 
 func NewConnectDb(ctx context.Context) (*pgx.Conn, error) {
-	return pgx.Connect(ctx, "user=" + os.Getenv("USER") + " dbname=" + os.Getenv("DBNAME") + " sslmode=disable")
+	return pgx.Connect(ctx, "user="+os.Getenv("USER")+" dbname="+os.Getenv("DBNAME")+" sslmode=disable")
 }

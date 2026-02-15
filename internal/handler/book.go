@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"booklib/internal/domain"
-	"booklib/internal/pkg/utils"
 	"booklib/internal/middleware"
+	"booklib/internal/pkg/utils"
 )
 
 type BookHandler struct {
@@ -43,12 +43,12 @@ func (bh *BookHandler) insertBook(w http.ResponseWriter, r *http.Request) {
 }
 
 func (bh *BookHandler) getBookById(w http.ResponseWriter, r *http.Request) {
- 	id, ok := utils.GetBookIdFromCtx(r.Context())
+	id, ok := utils.GetBookIdFromCtx(r.Context())
 
-  	if !ok {
-        utils.SendJSONError(w, "Book 'id' not found in context!", http.StatusInternalServerError)
-        return
-    }
+	if !ok {
+		utils.SendJSONError(w, "Book 'id' not found in context!", http.StatusInternalServerError)
+		return
+	}
 
 	book, err := bh.repo.GetBookById(r.Context(), id)
 
@@ -59,10 +59,10 @@ func (bh *BookHandler) getBookById(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 
- 	if err := json.NewEncoder(w).Encode(book); err != nil {
-        utils.SendJSONError(w, "Error encoding response", http.StatusInternalServerError)
-        return
-    }
+	if err := json.NewEncoder(w).Encode(book); err != nil {
+		utils.SendJSONError(w, "Error encoding response", http.StatusInternalServerError)
+		return
+	}
 }
 
 func (bh *BookHandler) getAllBooks(w http.ResponseWriter, r *http.Request) {
@@ -76,18 +76,18 @@ func (bh *BookHandler) getAllBooks(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	if err := json.NewEncoder(w).Encode(books); err != nil {
-        utils.SendJSONError(w, "Error encoding response", http.StatusInternalServerError)
-        return
-    }
+		utils.SendJSONError(w, "Error encoding response", http.StatusInternalServerError)
+		return
+	}
 
 }
 
 func (bh *BookHandler) updateBookById(w http.ResponseWriter, r *http.Request) {
 	id, ok := utils.GetBookIdFromCtx(r.Context())
 	if !ok {
-        utils.SendJSONError(w, "Book 'id' not found in context!", http.StatusInternalServerError)
-        return
-    }
+		utils.SendJSONError(w, "Book 'id' not found in context!", http.StatusInternalServerError)
+		return
+	}
 
 	var book domain.Book
 
@@ -112,9 +112,9 @@ func (bh *BookHandler) deleteBookById(w http.ResponseWriter, r *http.Request) {
 	id, ok := utils.GetBookIdFromCtx(r.Context())
 
 	if !ok {
-        utils.SendJSONError(w, "Book 'id' not found in context!", http.StatusInternalServerError)
-        return
-    }
+		utils.SendJSONError(w, "Book 'id' not found in context!", http.StatusInternalServerError)
+		return
+	}
 
 	err := bh.repo.DeleteBookById(r.Context(), id)
 
