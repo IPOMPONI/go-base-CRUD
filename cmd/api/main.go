@@ -5,21 +5,31 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"booklib/internal/handler"
+	"booklib/internal/middleware"
 	"booklib/internal/repository/postgresql"
 )
 
 func main() {
-	db, err := postgresql.NewConnectDb()
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+
+	db, err := postgresql.NewConnectDb(ctx)
 
 	if err != nil {
-		log.Fatal("Database connection failed:", err)
+		log.Println("Database connection failed:", err)
+
+		cancel()
+		os.Exit(1)
 	}
 
 	log.Println("Database connected!")
 
-	defer db.Close(context.Background())
+	defer func() {
+		db.Close(ctx)
+		cancel()
+	}()
 
 	bookRepo := postgresql.NewBookRepo(db)
 
@@ -29,6 +39,26 @@ func main() {
 
 	bookHandler.InitRoutes(mux)
 
-	log.Println("Server starting on :" + os.Getenv("PORT"))
-	log.Fatal(http.ListenAndServe(":"+os.Getenv("PORT"), mux))
+	handler := middleware.Chain(
+		mux,
+		middleware.RecoveryMiddleware,
+		middleware.LoggingMiddleware,
+	)
+
+	port := os.Getenv("PORT")
+
+	if port == "" {
+		port = "8080"
+		log.Printf("Port is not set. Default port: %s", port)
+	}
+
+	log.Println("Server starting on :" + port)
+
+	if err := http.ListenAndServe(":"+port, handler); err != nil && err != http.ErrServerClosed {
+		log.Println("Server startup error on :" + port)
+
+		db.Close(ctx)
+		cancel()
+		os.Exit(1)
+	}
 }

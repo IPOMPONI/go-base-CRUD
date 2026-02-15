@@ -3,18 +3,22 @@ package postgresql
 import (
 	"context"
 	"testing"
+	"time"
 )
 
 func TestConnectDb(t *testing.T) {
-	db, err := NewConnectDb()
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	db, err := NewConnectDb(ctx)
 
 	if err != nil {
 		t.Fatalf("Connection failed: %v", err)
 	}
 
-	defer db.Close(context.Background())
+	defer db.Close(ctx)
 
-	err = db.Ping(context.Background())
+	err = db.Ping(ctx)
 
 	if err != nil {
 		t.Fatalf("Failed ping db: %v", err)
